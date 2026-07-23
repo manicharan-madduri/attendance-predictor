@@ -8,15 +8,21 @@ dotenv.config();
 const app = express();
 
 // Middleware
+const clientUrl = process.env.CLIENT_URL ? process.env.CLIENT_URL.replace(/\/$/, '') : '';
+
 const allowedOrigins = [
   'http://localhost:5173',
-  process.env.CLIENT_URL,
+  clientUrl,
 ].filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) callback(null, true);
-    else callback(new Error('Not allowed by CORS'));
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.error(`CORS Blocked: Origin '${origin}' not in allowed list:`, allowedOrigins);
+      callback(new Error('Not allowed by CORS'));
+    }
   },
   credentials: true,
 }));
